@@ -1,0 +1,7 @@
+{
+  "Khordha": { "season": "Rabi (Winter)", "soilType": "Sandy loam", "recommendedCrops": ["Groundnut", "Mustard", "Green gram"] },
+  "Cuttack": { "season": "Rabi (Winter)", "soilType": "Alluvial", "recommendedCrops": ["Rice", "Mustard", "Vegetables"] },
+  "Puri": { "season": "Rabi (Winter)", "soilType": "Coastal sandy", "recommendedCrops": ["Groundnut", "Watermelon", "Cashew"] },
+  "Ganjam": { "season": "Rabi (Winter)", "soilType": "Red loam", "recommendedCrops": ["Groundnut", "Pulses", "Sesame"] },
+  "Balasore": { "season": "Rabi (Winter)", "soilType": "Alluvial", "recommendedCrops": ["Rice", "Potato", "Mustard"] }
+}
