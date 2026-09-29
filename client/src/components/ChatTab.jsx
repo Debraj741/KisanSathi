@@ -102,6 +102,7 @@ function ChatTab({ language }) {
   };
 
   const toggleAudio = (text, msgId) => {
+    if (loadingAudioId === msgId) return; // already fetching this message's audio — ignore repeat clicks
     const audio = audioCacheRef.current[msgId];
     if (!audio) return speakText(text, msgId);
     if (audio.paused) {
@@ -206,7 +207,11 @@ function ChatTab({ language }) {
                 {m.imagePreview && <img src={m.imagePreview} alt="upload" className="rounded-lg mb-2 max-h-48 max-w-full" />}
                 <p className="whitespace-pre-wrap text-sm sm:text-base">{m.content}</p>
                 {m.role === 'assistant' && (
-                  <button onClick={() => toggleAudio(m.content, m.id)} className="mt-2 text-sm text-green-700">
+                  <button
+                    onClick={() => toggleAudio(m.content, m.id)}
+                    disabled={loadingAudioId === m.id}
+                    className="mt-2 text-sm text-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
                     {loadingAudioId === m.id ? '🔄' : playingId === m.id ? `⏸️ ${L.pause}` : `▶️ ${L.listen}`}
                   </button>
                 )}
