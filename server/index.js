@@ -33,7 +33,7 @@ const LANGUAGE_NAMES = {
 const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
   ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
   : require("./serviceAccountKey.json");
-  
+
 initializeApp({
   credential: cert(serviceAccount),
 });
@@ -330,55 +330,69 @@ app.get("/api/history/:uid", async (req, res) => {
 app.get("/api/district/crops", async (req, res) => {
   const { district, state, lat, lon } = req.query;
   if (!district) return res.status(400).json({ error: "District is required" });
-
+ 
   try {
-    let latitude = lat,
-      longitude = lon;
-
+    let latitude = lat, longitude = lon;
+ 
     if (!latitude || !longitude) {
-      const geoRes = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(district)}&count=1`,
-      );
-      const geoData = await geoRes.json();
-      if (!geoData.results || geoData.results.length === 0) {
-        return res
-          .status(404)
-          .json({ error: "Could not locate this district for weather data." });
+      try {
+        const geoRes = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(district)}&count=1`,
+        );
+        const geoData = await geoRes.json();
+        if (geoData.results && geoData.results.length > 0) {
+          latitude = geoData.results[0].latitude;
+          longitude = geoData.results[0].longitude;
+        }
+      } catch (geoErr) {
+        console.error("Geocoding fetch failed:", geoErr.message);
       }
-      latitude = geoData.results[0].latitude;
-      longitude = geoData.results[0].longitude;
     }
-
-    const weatherRes = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m&daily=precipitation_sum&past_days=30&timezone=auto`,
-    );
-    const weather = await weatherRes.json();
-    const temperature = weather.current.temperature_2m;
-    const humidity = weather.current.relative_humidity_2m;
-    const rainfall = weather.daily.precipitation_sum.reduce(
-      (a, b) => a + (b || 0),
-      0,
-    );
-
+ 
+    // Weather is best-effort. Any failure here is logged but never blocks
+    // the crop recommendations below.
+    let liveData = null;
+    if (latitude && longitude) {
+      try {
+        const weatherRes = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m&daily=precipitation_sum&past_days=30&timezone=auto`,
+        );
+        if (!weatherRes.ok) {
+          const bodyText = await weatherRes.text();
+          console.error(`Open-Meteo returned ${weatherRes.status}:`, bodyText.slice(0, 300));
+        } else {
+          const weather = await weatherRes.json();
+          if (weather?.current && weather?.daily?.precipitation_sum) {
+            const rainfall = weather.daily.precipitation_sum.reduce((a, b) => a + (b || 0), 0);
+            liveData = {
+              temperature: weather.current.temperature_2m,
+              humidity: weather.current.relative_humidity_2m,
+              rainfall: rainfall.toFixed(1),
+            };
+          } else {
+            console.error("Open-Meteo response missing expected fields:", JSON.stringify(weather).slice(0, 300));
+          }
+        }
+      } catch (weatherErr) {
+        console.error("Weather fetch failed:", weatherErr.message);
+      }
+    }
+ 
     const result = getCropRecommendations(state || district, district);
     if (result.crops.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "No historical crop data found for this location." });
+      return res.status(404).json({ error: "No historical crop data found for this location." });
     }
-
+ 
     res.json({
       season: new Date().toLocaleString("en-IN", { month: "long" }),
       recommendedCrops: result.crops.slice(0, 3).map((c) => c.crop),
       matchLevel: result.matchLevel,
       matchedDistrict: result.matchedDistrict,
-      liveData: { temperature, humidity, rainfall: rainfall.toFixed(1) },
+      liveData, // may be null — HomeTab.jsx already handles this
     });
   } catch (err) {
     console.error("District crops error:", err.message);
-    res
-      .status(500)
-      .json({ error: "Could not fetch crop data for this location." });
+    res.status(500).json({ error: "Could not fetch crop data for this location." });
   }
 });
 
