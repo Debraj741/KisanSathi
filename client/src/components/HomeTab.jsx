@@ -140,8 +140,8 @@ function HomeTab({ language }) {
   };
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 overflow-y-auto h-full flex flex-col items-center sm:items-start">
-      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl">
+    <div className="p-3 sm:p-4 md:p-6 overflow-y-auto h-full flex flex-col items-center">
+      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl">
         <h2 className="text-lg sm:text-xl font-bold text-green-800 mb-1">{L.localizedAdvisoryTitle}</h2>
         <p className="text-sm text-gray-500 mb-4">
           {district
@@ -149,7 +149,7 @@ function HomeTab({ language }) {
             : L.detectingLocation}
         </p>
 
-        {/* {locating && <p className="text-gray-400 mb-3 text-sm">{L.detectingLocation}</p>} */}
+        {locating && <p className="text-gray-400 mb-3 text-sm">{L.detectingLocation}</p>}
         {locationError && <p className="text-amber-600 text-sm mb-3">{locationError}</p>}
 
         <div className="flex flex-col sm:flex-row gap-2 mb-4">

@@ -98,6 +98,24 @@ function App() {
         </div>
       </header>
 
+      {/* Desktop top nav — mobile keeps the bottom nav instead (see below) */}
+      {view === 'app' && (
+        <nav className="hidden md:flex bg-white border-b justify-center gap-2 px-4 py-2">
+          {tabs.map((tb) => (
+            <button
+              key={tb.id}
+              onClick={() => setTab(tb.id)}
+              className={`flex items-center gap-2 text-sm px-4 py-2 rounded-full transition-colors ${
+                tab === tb.id ? 'bg-green-600 text-white font-semibold' : 'text-gray-600 hover:bg-green-50'
+              }`}
+            >
+              <span className="text-lg">{tb.icon}</span>
+              {tb.label}
+            </button>
+          ))}
+        </nav>
+      )}
+
       <div className="flex-1 overflow-hidden">
         {view === 'dashboard' && (
           <Dashboard user={user} language={language} onEnterTab={enterTab} onSignInRequest={() => setShowSignIn(true)} />
@@ -115,7 +133,7 @@ function App() {
       </div>
 
       {view === 'app' && (
-        <nav className="bg-white border-t flex justify-around py-2">
+        <nav className="md:hidden bg-white border-t flex justify-around py-2">
           {tabs.map((tb) => (
             <button
               key={tb.id}

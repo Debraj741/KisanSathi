@@ -170,7 +170,7 @@ function ChatTab({ language }) {
   return (
     <div className="flex flex-col h-full">
       <main className="flex-1 overflow-y-auto p-3 sm:p-4">
-        <div className="max-w-3xl mx-auto w-full space-y-3">
+        <div className="max-w-3xl lg:max-w-4xl mx-auto w-full space-y-3">
           {messages.length === 0 && (
             <div className="mt-6 sm:mt-10">
               <p className="text-center text-gray-500 text-sm sm:text-base">{L.empty}</p>
@@ -228,7 +228,7 @@ function ChatTab({ language }) {
       </main>
 
       <footer className="bg-white border-t p-2 sm:p-3">
-        <div className="max-w-3xl mx-auto w-full">
+        <div className="max-w-3xl lg:max-w-4xl mx-auto w-full">
           {imagePreview && (
             <div className="flex items-center gap-2 mb-2">
               <img src={imagePreview} alt="preview" className="h-14 w-14 object-cover rounded" />
