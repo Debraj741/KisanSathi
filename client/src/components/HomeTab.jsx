@@ -149,7 +149,7 @@ function HomeTab({ language }) {
             : L.detectingLocation}
         </p>
 
-        {locating && <p className="text-gray-400 mb-3 text-sm">{L.detectingLocation}</p>}
+        {/* {locating && <p className="text-gray-400 mb-3 text-sm">{L.detectingLocation}</p>} */}
         {locationError && <p className="text-amber-600 text-sm mb-3">{locationError}</p>}
 
         <div className="flex flex-col sm:flex-row gap-2 mb-4">
